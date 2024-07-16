@@ -1,0 +1,7 @@
+KubePrueba\pr\modelo\Universidades.class
+KubePrueba\pr\dao\GestionUniversidad.class
+KubePrueba\pr\business\UniversidadesDao.class
+KubePrueba\pr\services\UniversidadServices.class
+KubePrueba\pr\services\CORSFilter.class
+KubePrueba\pr\services\ErrorMessage.class
+KubePrueba\pr\services\Path.class
