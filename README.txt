@@ -1,56 +1,17 @@
-This project was created from the archetype "wildfly-jakartaee-webapp-archetype".
+La imagen docker de el servicio REST https://hub.docker.com/repository/docker/chrisliter/universidades/general
 
-To deploy it:
-Run the maven goals "install wildfly:deploy"
+En este caso se uso tres imágenes, la imagen principal del servicio REST **chrisliter/universidades** subido a Dockerhub, una imagen de la base de datos **Postgresql** y una imagen del **pgAdmin** para administrar la base y en este caso crear la tabla universidades que necesita para el servicio rest
 
-To undeploy it:
-Run the maven goals "wildfly:undeploy"
+Al descargar este repositorio simplemente se ejecuta un **kompose convert** para convertir el docker-compose en los archivos yaml necesarios para desplegarlos en Kubernetes y luego un **kubectl apply -f .** para subir los .yaml
 
-==========================
+Al tener minikube levantado con **minikube start y minikube dashboard** para usarlo procedemos a crear el deployment que usará la imagen chrisliter/universidades. Con el comando **kubectl create deployment universidad --image=chrisliter/universidades** crearemos el deployment y y luego lo exponemos con **kubectl expose deployments universidad --type=LoadBalancer --port=8080 para que use ese puerto, luego usaríamos el comando **minikube tunnel universidad** para así el Microservicio de universidad pueda acceder a la base de datos. 
+El momento de desplegar el servicio podría salir un error, en el dashboard de minikube, se debe al nombre de la imagen que simplemente deberá ser cambiado de universidades a chrisliter/universidades, ya que el nombre de la imagen está incompleto y solo se le agregaría chrisliter/ de mi perfil de Dockerhub.
 
-DataSource:
-This sample includes a "persistence.xml" file in "src/main/resources/META-INF". This file defines
-a persistence unit "prPersistenceUnit" which uses the JakartaEE default database.
+Debemos crear la tabla en la base por lo que simplemente hacemos un **minikube service pgAdmin** para poder acceder a la consola y crear la tabla 
 
-In production environment, you should define a database in WildFly config and point to this database
-in "persistence.xml".
+"CREATE TABLE universidades(
+     Codigo serial Primary key,
+     Nombre TEXT NOT NULL
+);" y eso seria todo
 
-If you don't use entity beans, you can delete "persistence.xml".
-==========================
-
-JSF:
-The web application is prepared for JSF 4.0 by bundling an empty "faces-config.xml" in "src/main/webapp/WEB-INF".
-In case you don't want to use JSF, simply delete this file and "src/main/webapp/beans.xml".
-==========================
-
-Testing:
-This sample is prepared for running JUnit5 unit tests with the Arquillian framework.
-
-The configuration can be found in "pr/pom.xml":
-
-Three profiles are defined:
--"default": no integration tests are executed.
--"arq-remote": you have to start a WildFly server on your machine. The tests are executed by deploying
- the application to this server.
- Here the "maven-failsafe-plugin" is enabled so that integration tests can be run.
- Run maven with these arguments: "clean verify -Parq-remote"
--"arq-managed": this requires the environment variable "JBOSS_HOME" to be set:
- The server found in this path is started and the tests are executed by deploying the application to this server.
- Instead of using this environment variable, you can also define the path in "arquillian.xml".
- Here the "maven-failsafe-plugin" is enabled so that integration tests can be run.
- Run maven with these arguments: "clean verify -Parq-managed"
-
-The Arquillian test runner is configured with the file "src/test/resources/arquillian.xml"
-(duplicated in EJB and WEB project, depending where your tests are placed).
-The profile "arq-remote" uses the container qualifier "remote" in this file.
-The profile "arq-managed" uses the container qualifier "managed" in this file.
-
-The project contains an integration test "SampleIT" which shows how to create the deployable WAR file using the ShrinkWrap API.
-You can delete this test file if no tests are necessary.
-
-Why integration tests instead of the "maven-surefire-plugin" testrunner?
-The Arquillian test runner deploys the WAR file to the WildFly server and thus you have to build it yourself with the ShrinkWrap API.
-The goal "verify" (which triggers the maven-surefire-plugin) is executed later in the maven build lifecyle than the "test" goal so that the target
-artifact ("pr.war") is already built. You can build
-the final WAR by including those files. The "maven-surefire-plugin" is executed before the WAR file
-are created, so this WAR files would have to be built in the "@Deployment" method, too.
+Y luego con **minikube service universidad** podremos acceder a los servicios REST con http://localhost:8080/pr/rest/uni y consumir los servicios
