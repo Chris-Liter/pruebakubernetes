@@ -15,4 +15,4 @@ Debemos crear la tabla en la base por lo que simplemente hacemos un `minikube se
      Nombre TEXT NOT NULL
 );" y eso seria todo
 
-Y luego con `minikube service universidad` podremos acceder a los servicios REST con http://localhost:8080/pr/rest/uni y consumir los servicios
+Y luego con `minikube service universidad` podremos acceder a los servicios REST con `http://localhost:8080/pr/rest/uni` y consumir los servicios
